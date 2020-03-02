@@ -9,7 +9,7 @@ class Node:
         val (int): an item in the list
         next (Node): a link to the next item in the list (Linked List)
     """
-    def __init__(self, key, val, nxt=None):
+    def __init__(self, key=None, val=None, nxt=None):
         self.key = key
         self.val = val
         self.next = nxt

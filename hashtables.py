@@ -1,10 +1,10 @@
-"""Contains functions to convert infix expressions
-to postfix, then evaluating them.
+"""Lab 8: Hash Tables
+Hashtables implementation with separate chaining, linear probing,
+and quadratic probing collision handling methods.
 
-Project 2: Evaluating Expressions using Stacks
-Author:
-    Richard Hua
+Author: Richard Hua
 Class: CPE202
+Date: 3/2/2020
 """
 
 from linked_list import Node
@@ -113,18 +113,19 @@ class HashTableSepchain:
             else:
                 temp = self.table[hkey]
                 inserted = False
-                while temp is not None:
+                while temp:
                     if temp.key == key:
                         self.table[hkey].key = key
                         self.table[hkey].val = data
                         inserted = True
+                        break
                     if temp.next is None:
                         break
                     else:
                         temp = temp.next
                 if not inserted:
                     temp.next = Node(key, data)
-            self.num_items += 1
+        self.num_items += 1
 
     def get(self, key):
         """Returns the value (the item of a key-item pair) from the hash table
@@ -139,10 +140,19 @@ class HashTableSepchain:
         Raises:
             KeyError
         """
-        hkey = hash_string(key, self.size)
+        hkey = hash_string(key, self.table_size)
         if self.table[hkey] is None:
             raise KeyError
-        return self.table[hkey].val
+        temp = self.table[hkey]
+        while temp is not None:
+            if temp.key == key:
+                return temp.val
+            # if temp.next is None:
+            #     break
+            else:
+                temp = temp.next
+        # return self.table[hkey].val
+        raise KeyError
 
     def contains(self, key):
         """Returns true if key is in table, otherwise false.
@@ -153,7 +163,7 @@ class HashTableSepchain:
         Returns:
             bool : True if key is in table. False if not.
         """
-        hkey = hash_string(key, self.size)
+        hkey = hash_string(key, self.table_size)
         temp = self.table[hkey]
         if self.table[hkey] is None:
             return False
@@ -176,14 +186,24 @@ class HashTableSepchain:
         Raises:
             KeyError: key-item pair not found
         """
-        hkey = hash_string(key, self.size)
-        temp = self.table[hkey]
+        hkey = hash_string(key, self.table_size)
         if self.table[hkey] is None:
             raise KeyError
-        while temp is not None:
-            if temp.key == key:
-                return temp
-            temp = temp.next
+
+        curr = self.table[hkey]
+        next = self.table[hkey].next
+        if curr.key == key:
+            # print('from remove', self.table[hkey])
+            self.num_items -= 1
+            curr = curr.next
+            return curr
+            # print('from remove', self.table[hkey])
+        while next is not None:
+            if next.key == key:
+                self.num_items -= 1
+                curr.next = next.next
+                return next
+            next = next.next
         raise KeyError
 
     def size(self):
@@ -206,7 +226,10 @@ class HashTableSepchain:
         Returns:
             int : the current load factor
         """
-        return self.num_items / self.size
+        return self.num_items / self.table_size
+        # lf = str(self.num_items / self.table_size)
+        # lf = lf[:-14:]
+        # return lf
 
     def collisions(self):
         """Returns number of collisions.
@@ -404,16 +427,15 @@ def import_stopwords(filename, hashtable):
     Returns:
         hashtable : the hashtable with stop words inserted
     """
-    with open(filename, newline=" ") as stopfile:
-        for word in stopfile:
-            hashtable.put(word, word)
-            # hkey = hash_string(word, hashtable.size)
-            # hashtable.table[hkey] = Node(word, word)
+    with open(filename) as stopfile:
+        for line in stopfile:
+            for word in line.split():
+                hashtable.put(word, word)
     return hashtable
 
 def enlarge(table, capacity):
     new_cap = 2*capacity + 1
     new_table = [None] * new_cap
-    for item in table:
-        new_table[item] = table[item]
+    for idx in range(len(table)):
+        new_table[idx] = table[idx]
     return new_cap, new_table

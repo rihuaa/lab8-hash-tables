@@ -1,19 +1,55 @@
 import unittest
 
-from hashtables import HashTableSepchain, HashTableLinear, HashTableQuadratic
+from hashtables import HashTableSepchain #, HashTableLinear, HashTableQuadratic
 from hashtables import hash_string, import_stopwords, enlarge
 
 class MyTest(unittest.TestCase):
-    # hash of 'us' is 2
+    # hash of 'us', 'say' is 2
     def test_HashTableSepChain(self):
         t = HashTableSepchain()
-        print(t)
-        print(type(t))
+
         self.assertEqual(t.size(), 0)
+        self.assertFalse(t.contains('us'))
+        self.assertRaises(KeyError, t.get, 'us')
+
         t.put('us', 'us')
-        print(type(t[2]))
-        print(t[2])
-        self.assertEqual(t[2].key, 'us')
+        self.assertEqual(t.get('us'), 'us')
+        self.assertEqual(t['us'], 'us')
+        self.assertTrue(t.contains('us'))
+        self.assertFalse(t.contains('say'))
+        self.assertEqual(t.size(), 1)
+        self.assertEqual(t.collisions(), 0)
+
+        t.put('say', 'say')
+        self.assertEqual(t.get('say'), 'say')
+        self.assertTrue(t.contains('say'))
+        self.assertEqual(t.size(), 2)
+        self.assertEqual(t.collisions(), 1)
+
+        t.remove('say')
+        self.assertFalse(t.contains('say'))
+        self.assertTrue(t.contains('us'))
+        t.remove('us')
+        self.assertEqual(t.size(), 0)
+
+        print(hash_string('the', 11)) # 'the' = 5
+        t.put('us', 'us')
+        t.put('say', 'say')
+        t.put('the', 'the')
+        self.assertTrue(t.contains('the'))
+        self.assertEqual(t.load_factor(), 0.2727272727272727)
+
+
+        # print(t)
+        # print(t['say'])
+        # stop = 'stop_words.txt'
+        # with open(stop) as data:
+        #     for line in data:
+        #         for word in line.split():
+        #             hashed = hash_string(word, 11)
+        #             if hashed == 2:
+        #                 print(word)
+
     #     self.assertTrue(pq.is_empty())
     #     for i in reversed(range(5)):
     #         print("pq.insert(", i, ")")
